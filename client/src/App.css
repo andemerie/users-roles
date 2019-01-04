@@ -1,0 +1,15 @@
+.table-row {
+  cursor: pointer;
+}
+
+.user-modal .modal-card {
+  overflow: unset;
+}
+
+.user-modal .modal-content .modal-card {
+  overflow: unset;
+}
+
+.user-modal .modal-card-body {
+  overflow: unset;
+}

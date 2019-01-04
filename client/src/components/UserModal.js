@@ -6,6 +6,8 @@ import {
   updateUser,
   subscribeToUserCreated,
   subscribeToUserUpdated,
+  removeUserCreated,
+  removeUserUpdated,
 } from '../api';
 import {validateRequired} from '../validators';
 import Modal from './common/Modal';
@@ -32,23 +34,23 @@ export default class UserModal extends Component {
       nameError: '',
     };
 
-    const isEditMode = !!user.id;
-    const action = isEditMode ? subscribeToUserUpdated : subscribeToUserCreated;
-
-    action(err => {
-      if (err) {
-        console.error(err);
-        return;
-      }
+    this.onUserEdited = () => {
       const {onEditUser, onClose} = this.props;
       onEditUser();
       onClose();
-    });
+    };
+
+    const isEditMode = !!user.id;
+    const action = isEditMode ? subscribeToUserUpdated : subscribeToUserCreated;
+
+    action(this.onUserEdited);
   }
 
-  state = {
-    user: this.props.user,
-  };
+  componentWillUnmount() {
+    const isEditMode = !!this.props.user.id;
+    const action = isEditMode ? removeUserUpdated : removeUserCreated;
+    action(this.onUserEdited)
+  }
 
   handleChangeField = (fieldName, value) =>
     this.setState(({user}) => ({user: {...user, [fieldName]: value}}));

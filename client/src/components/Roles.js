@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 
-import {getRoles, subscribeToRolesReceived} from '../api';
+import {PAGE_SIZE} from './../constants';
+import {getRoles, subscribeToRolesReceived, removeRolesReceived} from '../api';
 import Paginate from './common/Paginate';
 import Table from './common/Table';
 import RoleModal from './RoleModal';
@@ -24,17 +25,18 @@ export default class Roles extends Component {
       currentRole: Roles.initialRole,
     };
 
-    subscribeToRolesReceived((err, {roles, pageCount}) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      this.setState({roles, pageCount});
-    });
+    this.onRolesReceived = ({roles, count}) =>
+      this.setState({roles, pageCount: Math.ceil(count / PAGE_SIZE)});
+
+    subscribeToRolesReceived(this.onRolesReceived);
   }
 
   componentDidMount() {
     this.getRoles();
+  }
+
+  componentWillUnmount() {
+    removeRolesReceived(this.onRolesReceived);
   }
 
   componentDidUpdate(prevProps, prevState) {

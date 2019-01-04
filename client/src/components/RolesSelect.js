@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 
-import {getRoles, subscribeToRolesReceived} from '../api';
+import {getRoles, subscribeToRolesReceived, removeRolesReceived} from '../api';
 
 export default class RolesSelect extends Component {
   static propTypes = {
@@ -18,12 +18,7 @@ export default class RolesSelect extends Component {
       defaultValueList: [],
     };
 
-    subscribeToRolesReceived((err, {roles}) => {
-      if (err) {
-        console.error(err);
-        this.setState({areRolesFetching: false});
-        return;
-      }
+    this.onRolesReceived = ({roles}) => {
       const {userRoles} = this.props;
 
       const roleOptions = roles.map(({id, name}) => ({
@@ -31,19 +26,28 @@ export default class RolesSelect extends Component {
         label: name,
       }));
 
-      const userRolesObject = userRoles.reduce((acc, cur) => ({ ...acc, [cur.id]: true }), {});
+      const userRolesObject = userRoles.reduce(
+        (acc, cur) => ({...acc, [cur.id]: true}),
+        {},
+      );
 
       const defaultValueList = roleOptions.filter(
         ({value}) => userRolesObject[value],
       );
 
       this.setState({roleOptions, defaultValueList, areRolesFetching: false});
-    });
+    };
+
+    subscribeToRolesReceived(this.onRolesReceived);
   }
 
   componentDidMount() {
     this.setState({areRolesFetching: true});
     getRoles();
+  }
+
+  componentWillUnmount() {
+    removeRolesReceived(this.onRolesReceived);
   }
 
   handleChange = selectedOptions => {

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 
-import {getUsers, subscribeToUsersReceived} from '../api';
+import {PAGE_SIZE} from './../constants';
+import {getUsers, subscribeToUsersReceived, removeUsersReceived} from '../api';
 import Paginate from './common/Paginate';
 import Table from './common/Table';
 import UserModal from './UserModal';
@@ -25,17 +26,18 @@ export default class Users extends Component {
       currentUser: Users.initialUser,
     };
 
-    subscribeToUsersReceived((err, {users, pageCount}) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      this.setState({users, pageCount});
-    });
+    this.onUsersReceived = ({users, count}) =>
+      this.setState({users, pageCount: Math.ceil(count / PAGE_SIZE)});
+
+    subscribeToUsersReceived(this.onUsersReceived);
   }
 
   componentDidMount() {
     this.getUsers();
+  }
+
+  componentWillUnmount() {
+    removeUsersReceived(this.onUsersReceived);
   }
 
   componentDidUpdate(prevProps, prevState) {

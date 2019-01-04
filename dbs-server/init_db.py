@@ -4,6 +4,7 @@ from faker import Faker
 from random import sample, randint
 from sqlalchemy import schema
 
+from config import POSTGRES
 from models import users, roles, users_roles
 
 
@@ -43,10 +44,10 @@ async def fill_data(conn):
 
 
 async def go():
-    engine = await create_engine(user='postgres',
-                                 database='users_roles_dev',
-                                 host='127.0.0.1',
-                                 password='password')
+    engine = await create_engine(user=POSTGRES['user'],
+                                 database=POSTGRES['db'],
+                                 host=POSTGRES['host'],
+                                 password=POSTGRES['password'])
     async with engine:
         async with engine.acquire() as conn:
             await drop_tables(conn)

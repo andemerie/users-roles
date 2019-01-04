@@ -6,6 +6,8 @@ import {
   updateRole,
   subscribeToRoleCreated,
   subscribeToRoleUpdated,
+  removeRoleCreated,
+  removeRoleUpdated,
 } from '../api';
 import {validateRequired} from '../validators';
 import Modal from './common/Modal';
@@ -31,18 +33,22 @@ export default class RoleModal extends Component {
       nameError: '',
     };
 
-    const isEditMode = !!role.id;
-    const action = isEditMode ? subscribeToRoleUpdated : subscribeToRoleCreated;
-
-    action(err => {
-      if (err) {
-        console.error(err);
-        return;
-      }
+    this.onRoleEdited = () => {
       const {onEditRole, onClose} = this.props;
       onEditRole();
       onClose();
-    });
+    };
+
+    const isEditMode = !!role.id;
+    const action = isEditMode ? subscribeToRoleUpdated : subscribeToRoleCreated;
+
+    action(this.onRoleEdited);
+  }
+
+  componentWillUnmount() {
+    const isEditMode = !!this.props.role.id;
+    const action = isEditMode ? removeRoleUpdated : removeRoleCreated;
+    action(this.onRoleEdited)
   }
 
   handleChangeName = ({target}) =>

@@ -24,3 +24,5 @@ const createConstants = list =>
 
 export const outgoing = createConstants(OUTGOING);
 export const incoming = createConstants(INCOMING);
+
+export const PAGE_SIZE = 5;
